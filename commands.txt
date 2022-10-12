@@ -1,0 +1,18 @@
+@cclient.command()
+    async def gif(ctx, *, search:str):
+      search=search.lower().replace(" ", "%20")
+      api_key = "AIzaSyDBNfLRJ1cNoHMdPCoWJ3zYdpWP6tWkDvw"
+      ckey = "Miku"
+      lmt = 20
+      url = "https://tenor.googleapis.com/v2/search?q=%s&key=%s&client_key=%s&limit=%s" % (search, api_key, ckey, lmt)
+      gifs = []
+      r = requests.get(url)
+      for i in range(0, 20):
+          gif = json.loads(r.content)["results"][i]["media_formats"]["gif"]["url"]
+          gifs.append(gif)
+      final = random.choice(gifs)
+      await ctx.send(final)
+      async def setup(bot):
+          bot.add_command(gif)
+
+---
