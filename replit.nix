@@ -1,10 +1,11 @@
 { pkgs }: {
   deps = [
     #pkgs.console()
-    pkgs.ffmpeg.bin
-                        pkgs.arcan.espeak
-                        pkgs.busybox
-                        pkgs.python38Full
+    pkgs.python38Packages.poetry
+                        pkgs.ffmpeg.bin
+    pkgs.arcan.espeak
+    pkgs.busybox
+    pkgs.python38Full
   ];
   env = {
     PYTHON_LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
