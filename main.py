@@ -1,15 +1,13 @@
 """ adpated from: https://discordpy.readthedocs.io/en/stable/quickstart.html#a-minimal-bot """
 
-import sys
-import importlib
+
 import os
 import discord
 from discord.ext import commands
 import live
 
-
 live.keep_alive()
-
+discord.opus.load_opus("./opus/libopus.so.0.8.0")
 client = commands.Bot(command_prefix="$", intents=discord.Intents.all())
 
 
@@ -19,35 +17,10 @@ async def on_ready():
 
 
 # load new cogs here
-client.load_extension("CMD")
-client.load_extension("chattermiku")
-
-
-@client.command(aliases=["rl"])
-async def reload(ctx, name):
-    """reloads a cog. can also reload a python module."""
-    try:
-        client.reload_extension(name)
-    except commands.ExtensionNotLoaded:
-        try:
-            importlib.reload(sys.modules[name])
-        except KeyError:
-            await ctx.send("failed to reload :(")
-            return
-    await ctx.send(f"{name} reloaded!")
-
-
-@client.command(aliases=["l"])
-async def load(ctx, name):
-    client.load_extension(name)
-    await ctx.send(f"{name} loaded!")
-
-
-@client.command(aliases=["ul"])
-async def unload(ctx, name):
-    client.unload_extension(name)
-    await ctx.send(f"{name} unloaded!")
-
+client.load_extension("cogs.loaders")
+client.load_extension("cogs.CMD")
+client.load_extension("cogs.chattermiku")
+client.load_extension("cogs.vc")
 
 try:
     client.run(os.getenv("TOKEN"))

@@ -1,7 +1,9 @@
 { pkgs }: {
   deps = [
     #pkgs.console()
-    pkgs.busybox
+    pkgs.ffmpeg.bin
+                        pkgs.arcan.espeak
+                        pkgs.busybox
                         pkgs.python38Full
   ];
   env = {

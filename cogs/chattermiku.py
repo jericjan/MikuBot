@@ -13,7 +13,6 @@ from modules.chatterbot_stuff import ListTrainerWithTags
 from modules.paginator import text_splitter
 
 
-
 # when Paginator works again, we can uncomment this.
 # from modules.paginator import ButtonPaginator, text_splitter
 

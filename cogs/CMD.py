@@ -73,7 +73,7 @@ class CMD(commands.Cog):
         await ctx.send("https://www.youtube.com/shorts/syw2g1pKXjs")
 
     @commands.command()
-    async def whois(self, ctx, *, msg):
+    async def whois(self, ctx, *, msg=None):
         if msg == "miku":
             await ctx.send("Blue hair and tie. In your wifi")
         elif msg == "electron":
