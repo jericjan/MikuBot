@@ -38,18 +38,25 @@ class CMD(commands.Cog):
         if "help" in msg:
             await message.channel.send('Blink twice for "yes" thrice for "no"')
 
+    def get_full_class_name(self, obj):
+        module = obj.__class__.__module__
+        if module is None or module == str.__class__.__module__:
+            return obj.__class__.__name__
+        return module + "." + obj.__class__.__name__
+  
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
-        def get_full_class_name(obj):
-            module = obj.__class__.__module__
-            if module is None or module == str.__class__.__module__:
-                return obj.__class__.__name__
-            return module + "." + obj.__class__.__name__
-
-        embed = nextcord.Embed(title=get_full_class_name(error), description=error)
+        embed = nextcord.Embed(title=self.get_full_class_name(error), description=error)
         await ctx.send(embed=embed)
         raise error
 
+    @commands.Cog.listener()
+    async def on_application_command_error(self, inter, error):
+        embed = nextcord.Embed(title=self.get_full_class_name(error), description=error)
+        await inter.channel.send(embed=embed)
+        raise error
+
+  
     @commands.command()
     async def myCommand(self, ctx):
         await ctx.send("basic command template")

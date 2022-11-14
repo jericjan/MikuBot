@@ -5,12 +5,15 @@ Miku Chatterbot Module
 import asyncio
 import random
 import nextcord
+from nextcord import SlashOption
 from nextcord.ext import commands
 import toolz
 from chatterbot import ChatBot
 from chatterbot.trainers import ListTrainer
 from modules.chatterbot_stuff import ListTrainerWithTags
 from modules.paginator import text_splitter
+from replit import db
+
 
 
 # when Paginator works again, we can uncomment this.
@@ -24,18 +27,59 @@ class Goodbye(Exception):
 class ChatterMiku(commands.Cog):
     def __init__(self, client):
         self.client = client
+        if 'learning_mode' not in db:
+            db['learning_mode'] = True
+        learning_mode = db['learning_mode']
         self.chatbot = ChatBot(
             "MikuBot",
             logic_adapters=[
                 "chatterbot.logic.MathematicalEvaluation",
                 "chatterbot.logic.BestMatch",
             ],
+            read_only=learning_mode
         )
         self.trainer_w_tags = ListTrainerWithTags(self.chatbot)
         self.trainer = ListTrainer(
             self.chatbot
         )  # still need this cuz ListTrainerWithTags breaks with finding get_text_index_string() attribute and idk why
 
+    @nextcord.slash_command(guild_ids=[1028350596065005598])
+    async def learn(
+        self,
+        inter: nextcord.Interaction,
+        mode: str = SlashOption(          
+            choices={"on": "True", "off": "False"},
+        )
+    ):
+        """Toggles MikuBot's learning mode.
+    
+        Parameters
+        ----------
+        inter: Interaction
+            The interaction object    
+        mode: str
+            ON to let Miku learn from chats, OFF to disable learning.
+        """
+        mode_bool = mode == "True"
+        if db['learning_mode'] == mode_bool:
+          await inter.response.send_message(f"Miku learning mode is already `{mode_bool}` dummy!")          
+        else:
+          db['learning_mode'] = mode_bool
+          self.chatbot = ChatBot(
+              "MikuBot",
+              logic_adapters=[
+                  "chatterbot.logic.MathematicalEvaluation",
+                  "chatterbot.logic.BestMatch",
+              ],
+              read_only=mode_bool
+          )      
+          await inter.response.send_message(f"Miku learning mode is now set to `{mode_bool}`")
+      
+    @commands.command()
+    async def sync(self, ctx):
+      await self.client.sync_application_commands(guild_id=1028350596065005598)
+      await ctx.send("Synced slash commands!")
+      
     @commands.command()
     async def chat(self, ctx, *, msg=None):
         goodbyes = [
@@ -203,4 +247,4 @@ class ChatterMiku(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(ChatterMiku(client))
+    client.add_cog(ChatterMiku(client))    
