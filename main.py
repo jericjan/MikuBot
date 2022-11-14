@@ -1,14 +1,14 @@
-""" adpated from: https://discordpy.readthedocs.io/en/stable/quickstart.html#a-minimal-bot """
+""" adpated from: https://nextcordpy.readthedocs.io/en/stable/quickstart.html#a-minimal-bot """
 
 
 import os
-import discord
-from discord.ext import commands
+import nextcord
+from nextcord.ext import commands
 import live
 
 live.keep_alive()
-discord.opus.load_opus("./opus/libopus.so.0.8.0")
-client = commands.Bot(command_prefix="$", intents=discord.Intents.all())
+nextcord.opus.load_opus("./opus/libopus.so.0.8.0")
+client = commands.Bot(command_prefix="$", intents=nextcord.Intents.all())
 
 
 @client.event
@@ -24,11 +24,9 @@ client.load_extension("cogs.vc")
 
 try:
     client.run(os.getenv("TOKEN"))
-except discord.HTTPException as e:
+except nextcord.HTTPException as e:
     if e.status == 429:
-        print("The Discord servers denied the connection for making too many requests")
-        print(
-            "Get help from https://stackoverflow.com/questions/66724687/in-discord-py-how-to-solve-the-error-for-toomanyrequests"
-        )
+        print("Goofy ahh Too Many Requests error")
+        os.system('busybox reboot')
     else:
         raise e

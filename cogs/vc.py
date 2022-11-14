@@ -2,8 +2,8 @@
 Miku Chatterbot Module
 """
 
-from discord.ext import commands
-import discord
+from nextcord.ext import commands
+import nextcord
 from gtts import gTTS
 import uuid
 import os
@@ -44,7 +44,7 @@ class VoiceChat(commands.Cog):
         with open(temp_file, "wb") as f:
             tts.write_to_fp(f)
         vc.play(
-            discord.FFmpegPCMAudio(source=temp_file),
+            nextcord.FFmpegPCMAudio(source=temp_file),
             after=lambda e: os.remove(temp_file),
         )
 

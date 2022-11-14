@@ -1,9 +1,9 @@
-from discord.ext import commands
+from nextcord.ext import commands
 import importlib
 import sys
 
 
-class VoiceChat(commands.Cog):
+class Loaders(commands.Cog):
     def __init__(self, client):
         self.client = client
 
@@ -32,4 +32,4 @@ class VoiceChat(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(VoiceChat(client))
+    client.add_cog(Loaders(client))

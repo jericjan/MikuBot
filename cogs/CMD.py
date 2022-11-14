@@ -1,6 +1,6 @@
 import random
-from discord.ext import commands
-import discord
+from nextcord.ext import commands
+import nextcord
 
 
 # client.run("TOKEN")
@@ -46,7 +46,7 @@ class CMD(commands.Cog):
                 return obj.__class__.__name__
             return module + "." + obj.__class__.__name__
 
-        embed = discord.Embed(title=get_full_class_name(error), description=error)
+        embed = nextcord.Embed(title=get_full_class_name(error), description=error)
         await ctx.send(embed=embed)
         raise error
 

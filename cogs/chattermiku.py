@@ -4,8 +4,8 @@ Miku Chatterbot Module
 
 import asyncio
 import random
-import discord
-from discord.ext import commands
+import nextcord
+from nextcord.ext import commands
 import toolz
 from chatterbot import ChatBot
 from chatterbot.trainers import ListTrainer
@@ -155,7 +155,7 @@ class ChatterMiku(commands.Cog):
         text_list = [x.text for x in text_list]
         session.close()
         splitted_text = text_splitter(text_list_str)
-        embed = discord.Embed()
+        embed = nextcord.Embed()
         for index, message in enumerate(splitted_text):
             if index == 0:
                 embed.title = title
