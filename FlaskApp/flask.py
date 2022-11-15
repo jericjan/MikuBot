@@ -3,7 +3,7 @@ from threading import Thread
 from modules import search_db
 from chatterbot import ChatBot
 
-app = Flask("", template_folder='FlaskApp/templates/', static_folder="FlaskApp/static/")
+app = Flask("", template_folder="FlaskApp/templates/", static_folder="FlaskApp/static/")
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 chatbot = ChatBot("MikuBot")
 
@@ -28,6 +28,7 @@ def all():
 @app.route("/search")
 def search():
     query = request.args["query"]
+    print(f"searching {query}")
     text_list, splitted_text = search_db.search(
         chatbot.storage, query, show_numbers=False
     )
@@ -37,6 +38,8 @@ def search():
 @app.route("/delete")
 def delete():
     query = request.args["query"]
+    print(request.args["query"])
+    print(f"deleting {query}")
     text_list, splitted_text = search_db.search(
         chatbot.storage, query, show_numbers=False
     )

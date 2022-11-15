@@ -18,7 +18,7 @@ function makeUL(array) {
           doDelete = confirm(`Do you want to delete "${textStuff}?"`)
           if (doDelete == true){
             var xmlHttp = new XMLHttpRequest();
-            var query = encodeURI(textStuff)
+            var query = encodeURIComponent(textStuff)
             xmlHttp.open( "GET", "/delete?query="+query, false ); // false for synchronous request
             xmlHttp.send();
             var errors = parseInt(xmlHttp.responseText)
@@ -51,7 +51,7 @@ document.querySelector("#all").onclick = function(){
   
 document.querySelector("#search").onclick = function(){
   var xmlHttp = new XMLHttpRequest();
-  var query = encodeURI(document.querySelector("input").value)
+  var query = encodeURIComponent(document.querySelector("input").value)
   xmlHttp.open( "GET", "/search?query="+query, false ); // false for synchronous request
   xmlHttp.send();
   json_list = JSON.parse(xmlHttp.responseText)['results'];
