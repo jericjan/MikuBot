@@ -25,9 +25,9 @@ class Goodbye(Exception):
 class ChatterMiku(commands.Cog):
     def __init__(self, client):
         self.client = client
-        if "learning_mode" not in db:
-            db["learning_mode"] = True
-        learning_mode = db["learning_mode"]
+        if "read_only_mode" not in db:
+            db["read_only_mode"] = True
+        learning_mode = db["read_only_mode"]
         self.logic_adapters = [
             "chatterbot.logic.MathematicalEvaluation",
             "chatterbot.logic.BestMatch",
@@ -45,7 +45,7 @@ class ChatterMiku(commands.Cog):
         self,
         inter: nextcord.Interaction,
         mode: str = SlashOption(
-            choices={"on": "True", "off": "False"},
+            choices=['on','off'],
         ),
     ):
         """Toggles MikuBot's learning mode.
@@ -57,15 +57,15 @@ class ChatterMiku(commands.Cog):
         mode: str
             ON to let Miku learn from chats, OFF to disable learning.
         """
-        mode = mode == "True"
-        if db["learning_mode"] == mode:
+        modebool = mode == "off"
+        if db["read_only_mode"] == modebool:
             await inter.response.send_message(
                 f"Miku learning mode is already `{mode}` dummy!"
             )
         else:
-            db["learning_mode"] = mode
+            db["read_only_mode"] = modebool
             self.chatbot = ChatBot(
-                "MikuBot", logic_adapters=self.logic_adapters, read_only=mode
+                "MikuBot", logic_adapters=self.logic_adapters, read_only=modebool
             )
             await inter.response.send_message(
                 f"Miku learning mode is now set to `{mode}`"
@@ -89,6 +89,8 @@ class ChatterMiku(commands.Cog):
         async def get_response(msg):
             print("|----------")
             print(f'{ctx.author} told Miku "{msg}"')
+            self.chatbot.read_only = db["read_only_mode"]
+            print(f"Read-only = {self.chatbot.read_only}")
             bot_input = self.chatbot.get_response(msg)
             confidence = bot_input.confidence * 100
             print(f"{confidence:.2f}% confident")
