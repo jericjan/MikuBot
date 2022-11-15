@@ -7,13 +7,11 @@ import random
 import nextcord
 from nextcord import SlashOption
 from nextcord.ext import commands
-import toolz
 from chatterbot import ChatBot
 from chatterbot.trainers import ListTrainer
 from modules.chatterbot_stuff import ListTrainerWithTags
-from modules.paginator import text_splitter
+from modules import search_db
 from replit import db
-
 
 
 # when Paginator works again, we can uncomment this.
@@ -27,16 +25,15 @@ class Goodbye(Exception):
 class ChatterMiku(commands.Cog):
     def __init__(self, client):
         self.client = client
-        if 'learning_mode' not in db:
-            db['learning_mode'] = True
-        learning_mode = db['learning_mode']
+        if "learning_mode" not in db:
+            db["learning_mode"] = True
+        learning_mode = db["learning_mode"]
+        self.logic_adapters = [
+            "chatterbot.logic.MathematicalEvaluation",
+            "chatterbot.logic.BestMatch",
+        ]
         self.chatbot = ChatBot(
-            "MikuBot",
-            logic_adapters=[
-                "chatterbot.logic.MathematicalEvaluation",
-                "chatterbot.logic.BestMatch",
-            ],
-            read_only=learning_mode
+            "MikuBot", logic_adapters=self.logic_adapters, read_only=learning_mode
         )
         self.trainer_w_tags = ListTrainerWithTags(self.chatbot)
         self.trainer = ListTrainer(
@@ -47,39 +44,38 @@ class ChatterMiku(commands.Cog):
     async def learn(
         self,
         inter: nextcord.Interaction,
-        mode: str = SlashOption(          
+        mode: str = SlashOption(
             choices={"on": "True", "off": "False"},
-        )
+        ),
     ):
         """Toggles MikuBot's learning mode.
-    
+
         Parameters
         ----------
         inter: Interaction
-            The interaction object    
+            The interaction object
         mode: str
             ON to let Miku learn from chats, OFF to disable learning.
         """
-        mode_bool = mode == "True"
-        if db['learning_mode'] == mode_bool:
-          await inter.response.send_message(f"Miku learning mode is already `{mode_bool}` dummy!")          
+        mode = mode == "True"
+        if db["learning_mode"] == mode:
+            await inter.response.send_message(
+                f"Miku learning mode is already `{mode}` dummy!"
+            )
         else:
-          db['learning_mode'] = mode_bool
-          self.chatbot = ChatBot(
-              "MikuBot",
-              logic_adapters=[
-                  "chatterbot.logic.MathematicalEvaluation",
-                  "chatterbot.logic.BestMatch",
-              ],
-              read_only=mode_bool
-          )      
-          await inter.response.send_message(f"Miku learning mode is now set to `{mode_bool}`")
-      
+            db["learning_mode"] = mode
+            self.chatbot = ChatBot(
+                "MikuBot", logic_adapters=self.logic_adapters, read_only=mode
+            )
+            await inter.response.send_message(
+                f"Miku learning mode is now set to `{mode}`"
+            )
+
     @commands.command()
     async def sync(self, ctx):
-      await self.client.sync_application_commands(guild_id=1028350596065005598)
-      await ctx.send("Synced slash commands!")
-      
+        await self.client.sync_application_commands(guild_id=1028350596065005598)
+        await ctx.send("Synced slash commands!")
+
     @commands.command()
     async def chat(self, ctx, *, msg=None):
         goodbyes = [
@@ -175,30 +171,7 @@ class ChatterMiku(commands.Cog):
         "Searches through all bot responses stored in database"
         if title is None:
             title = "Searched through Miku's responses and found:"
-        Statement = storage.get_model("statement")
-        session = storage.Session()
-        statements = session.query(Statement).filter()
-        if s_filter is None:
-            text_list = list(statements)
-            # text_list_str = [f"- {x.text} ({x.conversation})" for x in statements]
-
-        else:
-            text_list = [x for x in statements if s_filter in x.text]
-            # text_list_str = [
-            #    f"- {x.text} ({x.conversation})" for x in statements if filter in x.text
-            # ]
-        print(f"{len(text_list)} found")
-        text_list.sort(key=lambda x: x.text)
-        text_list_str = toolz.unique(text_list, key=lambda x: x.text)
-        text_list_str = "\n".join(
-            [
-                f"{idx+1}. {x.text} ({x.conversation})"
-                for idx, x in enumerate(text_list_str)
-            ]
-        )
-        text_list = [x.text for x in text_list]
-        session.close()
-        splitted_text = text_splitter(text_list_str)
+        text_list, splitted_text = search_db.search(storage, s_filter)
         embed = nextcord.Embed()
         for index, message in enumerate(splitted_text):
             if index == 0:
@@ -231,14 +204,7 @@ class ChatterMiku(commands.Cog):
             await_msg = await self.client.wait_for("message", check=check, timeout=60)
             if await_msg.content == "y":
                 await ctx.send("Deleting...")
-                errors = 0
-                for text in text_list:
-                    try:
-                        print(f'Deleting "{text}"')
-                        self.chatbot.storage.remove(text)
-                    except Exception as e:
-                        print(f"Exception: {e}")
-                        errors += 1
+                errors = search_db.delete(self.chatbot.storage, text_list)
                 await ctx.send(f"Done! {errors} errors")
             elif await_msg.content == "n":
                 await ctx.send("Well ok then. I won't delete them.")
@@ -247,4 +213,4 @@ class ChatterMiku(commands.Cog):
 
 
 def setup(client):
-    client.add_cog(ChatterMiku(client))    
+    client.add_cog(ChatterMiku(client))

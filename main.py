@@ -4,9 +4,9 @@
 import os
 import nextcord
 from nextcord.ext import commands
-import live
+from FlaskApp import flask
 
-live.keep_alive()
+flask.keep_alive()
 nextcord.opus.load_opus("./opus/libopus.so.0.8.0")
 client = commands.Bot(command_prefix="$", intents=nextcord.Intents.all())
 
@@ -27,6 +27,6 @@ try:
 except nextcord.HTTPException as e:
     if e.status == 429:
         print("Goofy ahh Too Many Requests error")
-        os.system('busybox reboot')
+        os.system("busybox reboot")
     else:
         raise e

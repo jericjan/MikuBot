@@ -43,7 +43,7 @@ class CMD(commands.Cog):
         if module is None or module == str.__class__.__module__:
             return obj.__class__.__name__
         return module + "." + obj.__class__.__name__
-  
+
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         embed = nextcord.Embed(title=self.get_full_class_name(error), description=error)
@@ -56,7 +56,6 @@ class CMD(commands.Cog):
         await inter.channel.send(embed=embed)
         raise error
 
-  
     @commands.command()
     async def myCommand(self, ctx):
         await ctx.send("basic command template")
