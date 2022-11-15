@@ -2,8 +2,8 @@ from flask import Flask, jsonify, render_template, request
 from threading import Thread
 from modules import search_db
 from chatterbot import ChatBot
-
 app = Flask("", template_folder="FlaskApp/templates/", static_folder="FlaskApp/static/")
+
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 chatbot = ChatBot("MikuBot")
 
